@@ -31,7 +31,8 @@
                         <i class="icon icon-delete"></i> <em></em>
                     </li>
                     <li>
-                        <input class="aw-register-name form-control" type="text" name="username" placeholder="用户名" value="" />
+                        <input class="aw-register-name form-control" id="username" type="text" name="username" placeholder="用户名" value="" />
+                        <span id="warn"></span>
                     </li>
                     <li>
                         <input class="aw-register-email form-control" type="text" placeholder="邮箱" name="email" value="" />
@@ -67,4 +68,54 @@
             </form>
         </div>
     </div>
+    <script type="text/javascript">
+
+        // var checkUsername = (function () {
+        //     var timer
+        //     var preUsername
+        //     return function (e) {
+
+        //         clearTimeout(timer)
+        //         var that = this
+
+        //         if(username === preUsername) return
+
+        //         timer = setTimeout(() => {
+        //             let username = $(that).val
+
+        //             $.ajax({
+        //                 url:'/user/check-username',
+        //                 type:'post',
+        //                 data:'username=' + username,
+        //                 dataType: 'json',
+        //                 success: (data) => {
+        //                      preUsername = username
+        //                     console.log(data)
+        //                     if(data.code === '001'){
+        //                         $('#warn').text('可以注册').css("color", 'red')
+        //                     }
+        //                     $('#warn').text('该用户名已注册').css('color', 'gray') 
+        //                 }
+        //             })
+        //         },1000)
+        //     }
+        // })()
+
+        $('#username').on('keyup', function(e){
+            let username = $(this).val()
+            $.ajax({
+                url:'/user/check-username',
+                type:'post',
+                data:'username=' + username,
+                dataType: 'json',
+                success: function(data){
+                    console.log(data)
+                    if(data.code === '001'){
+                        $('#warn').text('可以注册').css("color", 'red')
+                    }
+                    $('#warn').text('该用户名已注册').css('color', 'gray') 
+                }
+            })
+        })
+    </script>
 {{/block}}

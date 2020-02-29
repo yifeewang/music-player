@@ -1,5 +1,4 @@
 const Koa = require('koa');
-const path = require('path')
 const static = require('koa-static');
 const musicRouter = require('./routers/music');
 const userRouter = require('./routers/user');

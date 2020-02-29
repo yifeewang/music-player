@@ -10,24 +10,24 @@ module.exports = (rules) => {
     return async (ctx, next) => {
         rules.forEach(rule => {
             // 是否需要使用正则
-            if (rule.regex) {
-                let result = rule.regex.exec(ctx.url);
+            if (rule.regxp) {
+                let result = rule.regxp.exec(ctx.url);
                 // result不匹配null或者匹配
                 if (result) {
                     // 判断是直接赋值。还是取分组的内容
                     if (!rule.dist) {
-                        console.log(ctx.url, '分组正则字符串，最终改为:' + result[1])
+                        // console.log(ctx.url, '分组正则字符串，最终改为:' + result[1])
                         // 还是取分组的内容
                         ctx.url = result[1];
                     } else {
-                        console.log(ctx.url, '精确正则字符串，最终改为:' + rule.dist)
+                        // console.log(ctx.url, '精确正则字符串，最终改为:' + rule.dist)
                         ctx.url = rule.dist;
                     }
                 }
             }
             // 字符串精确匹配的
             if (rule.src === ctx.url) {
-                console.log(ctx.url, '精确匹配字符串，最终改为:' + rule.dist)
+                // console.log(ctx.url, '精确匹配字符串，最终改为:' + rule.dist)
                 ctx.url = rule.dist;
             }
         })

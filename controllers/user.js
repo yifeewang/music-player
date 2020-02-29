@@ -1,9 +1,9 @@
 const userModel = require('../models/user.js')
+const captchapng = require('captchapng2')
 
 module.exports = {
     showRegister: async ctx => {
-        let users = await userModel.getUsers()
-        console.log(111,users);
+        // let users = await userModel.getUsers()
         ctx.render('register')
     },
     showLogin: async ctx => {
@@ -13,7 +13,7 @@ module.exports = {
         const { username } = ctx.request.body
         
         const Users = await userModel.findUserByUsername(username)
-
+        console.log(123)
         if(Users.length === 0 ){
             ctx.body = {code: '001', msg: '可以注册'}
             return
@@ -24,7 +24,7 @@ module.exports = {
         const { username, password, email, v_code } = ctx.request.body
 
         const Users = await userModel.findUserByUsername(username)
-
+        //不能有相同用户名
         if(Users.length !== 0 ){
             ctx.body = {code: '002', msg: '该用户已注册'}
             return
@@ -42,6 +42,34 @@ module.exports = {
         } catch (error) {
             ctx.throw({code: '002'})
         }
+    },
+    doLogin: async ctx => {
+        console.log(111, ctx.request.body)
+        //获取用户数据
+        const {username, password} = ctx.request.body
+        //核查用户是否已经注册
+        const results = await userModel.findUserByUsername(username)
+        //返回空数组表示数据库没有该用户名,未注册
+        if(results.length === 0){
+            ctx.body = {code:'002', msg: '用户名或密码错误'}
+            return
+        }
+        const result = results[0]
+        
+        if(result.password === password){
+            ctx.body = {code:'001', msg: '登陆成功'}
+            //挂载session,用于用户验证
+            ctx.session.user = user
+            return
+        }
+        //密码错误
+        ctx.body = {code:'002', msg: '用户名或密码错误'}
+    },
+    getPic: async (ctx, next) => {
+        let rand = parseInt(Math.random() * 9000 + 1000)
+        let png = new captchapng(80, 30, rand) // width,height, numeric captcha
+        
+        ctx.body = png.getBuffer()
     }
 }
 

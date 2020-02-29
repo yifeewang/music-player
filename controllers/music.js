@@ -50,7 +50,7 @@ module.exports = {
         if(result.affectedRows !== 1) {
             // 没有更新成功(throw是针对页面的操作，ajax请求，code:002)
             ctx.body = {
-              code:'002',msg:result.message
+              code:'002',msg:'没有更新成功'
             };
             return;
           }
@@ -58,5 +58,45 @@ module.exports = {
           ctx.body = {
             code:'001',msg:'更新成功'
           }
+    },
+    deleteMusic: async (ctx, next) => {
+        //获取要删除的音乐id
+        let {id} = ctx.request.query
+        //对音乐进行删除
+        const results = await musicModel.deleteMusic(id)
+
+        if(results.affectedRows === 0){
+            ctx.body = {code:'002', msg:'删除失败'}
+            return 
+        }
+
+        ctx.body = {code:'001', msg:'删除成功'}
+    },
+    showEdit: async (ctx, next) => {
+        //获取编辑id
+        const {id} = ctx.query
+        //查询获取要编辑的音乐数据
+        const results = await musicModel.findMusicById(id)
+        console.log(333,results)
+        //处理异常
+        if(results.length === 0){
+            ctx.throw('编辑出错啦')
+            return
+        }
+        //找到则把找到的数据渲染编辑页
+        ctx.render('edit',{
+            music:results[0]
+        })
+    },
+    showIndex: async (ctx, next) => {
+        // 根据用户的session中的id来查询数据======未完成====
+        // const uid = ctx.session.user.id;
+        const uid =1
+        // 根据id查询歌曲
+        const musics = await musicModel.findMusicByUid(uid);
+        // 展示给用户
+        ctx.render('index',{
+            musics
+        })
     }
 }
