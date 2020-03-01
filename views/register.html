@@ -25,7 +25,7 @@
             <h1>注册新用户</h1>
         </div>
         <div class="mod-body">
-            <form action="" class="aw-register-form" method="post" id="register_form">
+            <form  class="aw-register-form"  id="register_form">
                 <ul>
                     <li class="alert alert-danger hide error_message text-left">
                         <i class="icon icon-delete"></i> <em></em>
@@ -38,29 +38,29 @@
                         <input class="aw-register-email form-control" type="text" placeholder="邮箱" name="email" value="" />
                     </li>
                     <li>
-                        <input class="aw-register-pwd form-control" type="password" name="password" placeholder="密码"  />
+                        <input class="aw-register-pwd form-control" id="password" type="password" name="password" placeholder="密码"  />
                     </li>
                     <div id='pwd-level'>
-                        <span>密码强度:</span>
+                        <span style="margin-bottom: 10px">密码强度:</span>
                         <div></div>
                         <div></div>
                         <div></div>
                     </div>
                     <hr/>
                     <li class="aw-register-verify">
-                        <img class="pull-right" width="120" src="">
-                        <input type="text" class="form-control" name="vcode" placeholder="验证码" />
+                        <img class="pull-right" width="120" src="/user/get-pic" onclick="this.src = '/user/get-pic?'+Date.now()">
+                        <input type="text" class="form-control" name="v_code" placeholder="验证码" />
                     </li>
                     <li class="last">
                         <label>
                             <input type="checkbox" checked="checked" value="agree" /> 我同意</label> <a href="javascript:;" class="aw-agreement-btn">用户协议</a>
-                        <a href="/login" class="pull-right">已有账号?</a>
+                        <a href="/user/login" class="pull-right">已有账号?</a>
                         <div class="aw-regiter-agreement hide">
                             <div class="aw-register-agreement-txt" id="register_agreement"></div>
                         </div>
                     </li>
                     <li class="clearfix">
-                        <button type="submit" class="btn btn-large btn-blue btn-block">
+                        <button class="btn btn-large btn-blue btn-block">
                             注册
                         </button>
                     </li>
@@ -70,52 +70,97 @@
     </div>
     <script type="text/javascript">
 
-        // var checkUsername = (function () {
-        //     var timer
-        //     var preUsername
-        //     return function (e) {
+        var checkUsername = (function () {
+            var timer
+            var preUsername
+            return function (e) {
 
-        //         clearTimeout(timer)
-        //         var that = this
+                clearTimeout(timer)
+                var that = this
 
-        //         if(username === preUsername) return
+                if(username === preUsername) return
 
-        //         timer = setTimeout(() => {
-        //             let username = $(that).val
+                timer = setTimeout(() => {
+                    let username = $(that).val()
 
-        //             $.ajax({
-        //                 url:'/user/check-username',
-        //                 type:'post',
-        //                 data:'username=' + username,
-        //                 dataType: 'json',
-        //                 success: (data) => {
-        //                      preUsername = username
-        //                     console.log(data)
-        //                     if(data.code === '001'){
-        //                         $('#warn').text('可以注册').css("color", 'red')
-        //                     }
-        //                     $('#warn').text('该用户名已注册').css('color', 'gray') 
-        //                 }
-        //             })
-        //         },1000)
-        //     }
-        // })()
+                    $.ajax({
+                        url:'/user/check-username?username=' +username,
+                        type:'get',
+                        success: (data) => {
+                             preUsername = username
+                            console.log(data)
+                            if(data.code === '001'){
+                                $('#warn').text('可以注册').css("color", 'red')
+                                return
+                            }
+                            $('#warn').text('该用户名已注册').css('color', 'gray') 
+                        }
+                    })
+                },1000)
+            }
+        })()
+        //检查用户名是否注册
+        $('#username').on('keyup', checkUsername)
 
-        $('#username').on('keyup', function(e){
-            let username = $(this).val()
+        // 验证密码强度函数
+        function checkPwdLeve (str) {
+            var tmpLevel = 0;
+            // 三次判断
+            var reg1 = /\d/; // 数字
+            var reg2 = /\w/; // 字母
+            var reg3 = /\W/; //特殊字符
+
+            if(reg1.test(str)) tmpLevel ++;
+            if(reg2.test(str)) tmpLevel ++;
+            if(reg3.test(str)) tmpLevel ++;
+            return tmpLevel;
+        }
+
+        // 2.1：密码强度
+        $('#password').on('keyup',function(e) {
+            // 保存输入值
+            var pwd = $(this).val();
+            var level = checkPwdLeve(pwd);
+            // 查找这些div
+            var divs = $('#pwd-level').find('div');
+
+            // 清空背景色
+            for(var i = 0;i< divs.length; i++) {
+                divs[i].style.backgroundColor = '';
+            } 
+            // 包含所有的颜色
+            var colors = ['yellowgreen','skyblue','hotpink'];
+            // level越大，遍历次数就越多，div设置就越大
+            for(var i = 0;i< level; i++) {
+                divs[i].style.height = '10px'
+                divs[i].style.backgroundColor = colors[i];
+            }
+
+        });
+
+        //提交注册
+        $('#register_form').on('submit', function(e){
+            e.preventDefault()
+            //获取表单数据
+            let formData = $(this).serialize()
+
             $.ajax({
-                url:'/user/check-username',
-                type:'post',
-                data:'username=' + username,
+                url: '/user/do-register?' + formData,
+                type: 'get',
+                // data: formData,
                 dataType: 'json',
                 success: function(data){
-                    console.log(data)
-                    if(data.code === '001'){
-                        $('#warn').text('可以注册').css("color", 'red')
+                    if(data.code === '001') {
+                        // 是否去登陆
+                        if(confirm('注册成功,是否去登录?')) {
+                            window.location = '/user/login';
+                        }
+                    } else {
+                        alert('注册失败:'+data.msg);
                     }
-                    $('#warn').text('该用户名已注册').css('color', 'gray') 
                 }
             })
+            return false
         })
     </script>
 {{/block}}

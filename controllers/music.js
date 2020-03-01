@@ -2,9 +2,9 @@ const musicModel = require('../models/music')
 const path = require('path')
 
 const singObject = ctx => {
-    const {title, singer, time} = ctx.request.body
+    const {title, singer, time, id} = ctx.request.body
     const {file, filerc} = ctx.request.files
-
+    
     let singInformatin = {
         title, singer, time
     }
@@ -20,7 +20,7 @@ const singObject = ctx => {
         return
     }
     singInformatin.file = '/public/files/' + path.parse(file.path).base
-    singInformatin.uid = 1
+    singInformatin.uid = id
     return singInformatin
 }
 
@@ -44,7 +44,7 @@ module.exports = {
         const singInformation = singObject(ctx)
         const {id} = ctx.request.body
         Object.assign(singInformation, {id})
-
+        
         const result = await musicModel.updateMusic(singInformation)
         
         if(result.affectedRows !== 1) {
@@ -62,6 +62,7 @@ module.exports = {
     deleteMusic: async (ctx, next) => {
         //获取要删除的音乐id
         let {id} = ctx.request.query
+        
         //对音乐进行删除
         const results = await musicModel.deleteMusic(id)
 
@@ -77,7 +78,7 @@ module.exports = {
         const {id} = ctx.query
         //查询获取要编辑的音乐数据
         const results = await musicModel.findMusicById(id)
-        console.log(333,results)
+        
         //处理异常
         if(results.length === 0){
             ctx.throw('编辑出错啦')
@@ -90,13 +91,15 @@ module.exports = {
     },
     showIndex: async (ctx, next) => {
         // 根据用户的session中的id来查询数据======未完成====
-        // const uid = ctx.session.user.id;
-        const uid =1
+        const uid = ctx.session.user.id;
         // 根据id查询歌曲
         const musics = await musicModel.findMusicByUid(uid);
         // 展示给用户
         ctx.render('index',{
             musics
         })
+    },
+    intoAdd: async ctx => {
+        ctx.render('add')
     }
 }

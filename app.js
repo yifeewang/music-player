@@ -19,6 +19,7 @@ render(app, {
     extname: '.html',
     debug: process.env.NODE_ENV !== 'production'
   });
+
 //处理错误
 app.use(error())
 // 为了给static重写URL
@@ -44,6 +45,14 @@ app.keys = ['test'];
 // 基于test字符串进行签名的运算，为的是保证数据不被串改
 // 处理session
 app.use(session({store:store},app))
+
+// 必须在每次请求挂载新的数据与视图的桥梁(在session之后)
+app.use(async (ctx,next)=>{
+  // express app.locals 视图与数据的桥梁
+  ctx.state.user = ctx.session.user;
+  // 最终都放行
+  await next();
+});
 
 /**
  * 注意这里: 1:最初使用formidable接收文件，但是头是键值对的头，

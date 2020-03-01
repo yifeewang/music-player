@@ -4437,14 +4437,14 @@ body {
 }
 
 .aw-logo a {
-    background: url(img/Laravel-Four-Revised-Slant.png) no-repeat !important;
+    background: url(img/1.png) no-repeat !important;
     background-size: contain !important
 }
 
 .aw-login-box .logo {
-    width: 94px !important;
-    background: url(img/Laravel-Four-Revised-Icon.png) no-repeat !important;
-    background-size: contain !important
+    background: url(img/1.png) !important;
+    background-size: contain !important;
+    border-radius: 5px;
 }
 
 .aw-register-box .mod-head > a {

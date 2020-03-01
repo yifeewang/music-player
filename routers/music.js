@@ -10,5 +10,6 @@ musicRouter
   .delete('/music/del-music', musicController.deleteMusic)
   .put('/music/update-music', musicController.updateMusic)
   .get('/music/edit-music', musicController.showEdit)
+  .get('/music/add', musicController.intoAdd)
 
 module.exports  = musicRouter 

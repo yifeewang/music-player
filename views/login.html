@@ -30,6 +30,7 @@
                 </div>
                 <div class="side-bar pull-left">
                     <img src="/public/img/a.png" style="width: 160px">
+                    <div style="font-size: 30px;margin-top:20px;margin-left:30px;color:skyblue">爱上音乐</div>
                 </div>
             </div>
             <div class="mod-footer">
@@ -38,5 +39,30 @@
             </div>
         </div>
     </div>
-
+    <script type="text/javascript">
+        $('#login_form').on('submit',function(e) {
+           // 禁止默认提交事件
+           e.preventDefault();
+           // 获取表单的数据
+           var formData = $(this).serialize(); // username=xxx&email=xxx
+           // ajax请求
+           $.ajax({
+               url:'/user/do-login?' + formData,
+            //    data:formData,
+            //    type:'post',
+               type:'get',
+               dataType:'json',
+               success:function(data) {
+                   if(data.code === '001') {
+                       // 是否去登陆
+                       if(confirm('登录成功,是否去听歌?')) {
+                           window.location = '/music/index';
+                       }
+                   } else {
+                       alert('登录失败:'+data.msg);
+                   }
+               }
+           })
+       })
+   </script>
 {{/block}}
